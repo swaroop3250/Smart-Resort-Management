@@ -1,0 +1,300 @@
+﻿.dashboard-banner {
+  background-image: url("../images/conference-hall.jpg");
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.kpi-card {
+  background: #fff;
+  border: 1px solid rgba(14, 74, 114, 0.1);
+  border-radius: 14px;
+  box-shadow: 0 12px 24px rgba(14, 37, 56, 0.12);
+  padding: 16px;
+}
+
+.kpi-card p {
+  color: #587286;
+  font-size: 13px;
+}
+
+.kpi-card h3 {
+  margin-top: 8px;
+  font-size: 28px;
+}
+
+.occupancy-card.occupancy-low {
+  border-color: #38a169;
+}
+
+.occupancy-card.occupancy-medium {
+  border-color: #ed8936;
+}
+
+.occupancy-card.occupancy-high {
+  border-color: #e53e3e;
+}
+
+.section-grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid rgba(14, 74, 114, 0.1);
+  border-radius: 14px;
+  box-shadow: 0 12px 24px rgba(14, 37, 56, 0.1);
+  padding: 18px;
+}
+
+.card-head {
+  margin-bottom: 14px;
+}
+
+.today-ops-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.plain-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.plain-list li {
+  border: 1px solid #d8e6f1;
+  background: #f8fcff;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.metric-list {
+  display: grid;
+  gap: 10px;
+}
+
+.metric-list p {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #ecf3f8;
+  padding-bottom: 8px;
+  gap: 12px;
+}
+
+.metric-list span {
+  color: #557184;
+  font-size: 14px;
+}
+
+.metric-list strong {
+  color: #193b53;
+  font-size: 14px;
+}
+
+.charts-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.charts-grid canvas {
+  width: 100%;
+  border: 1px solid #d6e5f1;
+  border-radius: 12px;
+  background: #fbfdff;
+}
+
+.panel-note {
+  color: #507188;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid #d6e4ef;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.analytics-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 920px;
+}
+
+.analytics-table th,
+.analytics-table td {
+  text-align: left;
+  font-size: 13px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #edf3f8;
+  vertical-align: top;
+}
+
+.analytics-table th {
+  background: #f6fbff;
+  color: #1e455f;
+}
+
+.analytics-table th button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.analytics-table tr:hover td {
+  background: #fafdff;
+}
+
+.ordered-list {
+  margin: 8px 0 0 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.alerts-card .plain-list li {
+  border-left: 4px solid #f6ad55;
+}
+
+.controls-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.controls-grid .btn-outline {
+  color: #113a55;
+  border: 1px solid #bcd1e1;
+}
+
+.controls-grid .btn-outline:hover {
+  background: #1b5d84;
+  color: #fff;
+  border-color: #1b5d84;
+}
+
+.table-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.table-toolbar input,
+.table-toolbar select {
+  border: 1px solid #c9d8e5;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.table-toolbar input {
+  flex: 1 1 260px;
+}
+
+.table-toolbar select {
+  flex: 0 0 220px;
+}
+
+.badge-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-risk {
+  color: #b91c1c;
+  background: #fde8e8;
+}
+
+.badge-last-minute {
+  color: #975a16;
+  background: #fff4dc;
+}
+
+.badge-utilization {
+  color: #1e429f;
+  background: #e8efff;
+}
+
+.status-select {
+  border: 1px solid #cbd9e4;
+  border-radius: 8px;
+  padding: 6px;
+  font: inherit;
+  font-size: 12px;
+}
+
+.row-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.row-actions button {
+  border: 1px solid #d3e0ea;
+  background: #fff;
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.row-actions button:hover {
+  background: #f3f8fc;
+}
+
+.raw-data-preview {
+  background: #0f2535;
+  color: #d8e7f3;
+  border-radius: 10px;
+  padding: 14px;
+  font: 12px/1.5 Consolas, "Courier New", monospace;
+  max-height: 320px;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 1280px) {
+  .kpi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 940px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .section-grid-two,
+  .today-ops-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
