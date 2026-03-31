@@ -1,0 +1,35 @@
+::ffff:127.0.0.1 - - [31/Mar/2026 18:04:11] "GET / HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:24] "GET / HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:24] "GET /css/react-site.css?v=20260326d HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:24] "GET /css/style.css?v=20260326d HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:24] "GET /js/core-analytics.js?v=20260326d HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:24] "GET /js/core-data.js?v=20260326d HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:24] "GET /js/core-charts.js?v=20260326d HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:25] "GET /js/react-site.js?v=20260326d HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:27] "GET /images/hero.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:27] "GET /images/pool.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:27] "GET /images/villa.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:27] "GET /images/candlelight-dinner.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:27] code 404, message File not found
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:27] "GET /favicon.ico HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:32] "GET /images/room2.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:32] "GET /images/room3.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:32] "GET /images/room5.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:32] "GET /images/room1.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:35] "GET /images/breakfast.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:35] "GET /images/seafood-platter.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:39] "GET /images/kids-play-area.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:39] "GET /images/wedding.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:39] "GET /images/spa.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:39] "GET /images/water_sports.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:42] "GET /images/gallery2.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:18:46] "GET /images/conference-hall.jpg HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:37:04] "GET / HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:37:11] "GET / HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:37:54] code 404, message File not found
+::ffff:127.0.0.1 - - [31/Mar/2026 18:37:54] "GET /gallery.html HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:38:39] "GET / HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:38:53] code 404, message File not found
+::ffff:127.0.0.1 - - [31/Mar/2026 18:38:53] "GET /gallery.html HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:39:53] "GET / HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [31/Mar/2026 18:44:08] "GET / HTTP/1.1" 304 -

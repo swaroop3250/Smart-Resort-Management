@@ -1,0 +1,993 @@
+.react-app-shell {
+  --react-navy: #0d2f45;
+  --react-ocean: #11698e;
+  --react-sand: #f5efe6;
+  --react-cream: #fffaf4;
+  --react-gold: #c98b43;
+  --react-ink: #173042;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(circle at top left, rgba(201, 139, 67, 0.12), transparent 30%),
+    linear-gradient(180deg, #f8fbfd 0%, #eef6f7 50%, #f8f1e9 100%);
+}
+
+.react-app-shell {
+  color: var(--react-ink);
+}
+
+.react-hero {
+  min-height: 72vh;
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding-top: 82px;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.react-hero.home { background-image: linear-gradient(rgba(7, 28, 44, 0.42), rgba(7, 28, 44, 0.42)), url("../images/hero.jpg"); }
+.react-hero.rooms { background-image: linear-gradient(rgba(9, 29, 45, 0.4), rgba(9, 29, 45, 0.4)), url("../images/villa.jpg"); }
+.react-hero.activities { background-image: linear-gradient(rgba(8, 38, 44, 0.4), rgba(8, 38, 44, 0.4)), url("../images/water_sports.jpg"); }
+.react-hero.reviews { background-image: linear-gradient(rgba(8, 36, 49, 0.45), rgba(8, 36, 49, 0.45)), url("../images/pool.jpg"); }
+.react-hero.gallery { background-image: linear-gradient(rgba(31, 29, 57, 0.35), rgba(31, 29, 57, 0.35)), url("../images/gallery2.jpg"); }
+.react-hero.login { background-image: linear-gradient(rgba(12, 34, 48, 0.52), rgba(12, 34, 48, 0.52)), url("../images/conference-hall.jpg"); }
+.react-hero.booking { background-image: linear-gradient(rgba(19, 51, 41, 0.4), rgba(19, 51, 41, 0.4)), url("../images/room2.jpg"); }
+.react-hero.dashboard { background-image: linear-gradient(rgba(13, 39, 60, 0.45), rgba(13, 39, 60, 0.45)), url("../images/conference-hall.jpg"); }
+
+.react-hero-content {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  text-align: center;
+}
+
+.react-hero-content h1 {
+  font-size: clamp(40px, 6vw, 74px);
+  margin-bottom: 10px;
+  max-width: 12ch;
+  line-height: 0.95;
+}
+
+.react-hero-content p {
+  max-width: 760px;
+  font-size: 19px;
+  margin: 0 auto;
+}
+
+.react-home-hero .react-hero-content h1 {
+  max-width: 9ch;
+}
+
+.react-home-hero .react-hero-content p {
+  max-width: 620px;
+  font-size: 18px;
+}
+
+.react-home-stage {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 110px 0 110px;
+  background:
+    linear-gradient(rgba(8, 28, 40, 0.28), rgba(8, 28, 40, 0.45)),
+    url("../images/hero.jpg");
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.react-home-stage-content {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  color: #fff;
+}
+
+.react-home-stage-content .label {
+  color: #f0d7ab;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.react-home-stage-content h1 {
+  margin: 14px 0 18px;
+  font-size: clamp(42px, 6vw, 78px);
+  line-height: 0.94;
+  max-width: 10ch;
+}
+
+.react-home-stage-content p {
+  max-width: 560px;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.react-home-mini-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 18px;
+  margin-top: 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+}
+
+.react-home-mini-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.react-head { margin-bottom: 14px; }
+.react-head .label,
+.react-story-card .label,
+.react-panel-dark .label {
+  color: var(--react-gold);
+  letter-spacing: 0.18em;
+}
+
+.react-card-grid,
+.react-dashboard-grid,
+.react-three-col,
+.react-gallery-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.react-card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.react-dashboard-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.react-dashboard-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.react-dashboard-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.react-three-col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.react-gallery-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+.react-story-grid,
+.react-feature-split {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.react-booking-head {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.react-booking-head > p:not(.label) {
+  max-width: 620px;
+  margin: 10px auto 0;
+  color: #5d7687;
+}
+
+.react-review-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.react-review-panel p {
+  margin: 0 0 14px;
+  line-height: 1.7;
+}
+
+.react-review-panel strong {
+  color: var(--react-ocean);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.react-room-filter-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 280px));
+  gap: 16px;
+  align-items: end;
+  margin-bottom: 24px;
+  justify-content: start;
+}
+
+.react-room-grid {
+  align-items: start;
+}
+
+.react-room-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 16px 0 12px;
+  color: #59758b;
+  font-size: 14px;
+}
+
+.react-room-meta strong {
+  color: var(--react-navy);
+}
+
+.react-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.react-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #eef6fb;
+  border: 1px solid #d6e5f1;
+  color: var(--react-ocean);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.react-empty-state {
+  margin-top: 18px;
+  color: #5d7687;
+}
+
+.react-activity-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.9fr) minmax(320px, 0.9fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.react-activity-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.react-activity-card {
+  display: grid;
+  gap: 14px;
+}
+
+.react-activity-cart {
+  position: sticky;
+  top: 104px;
+  display: grid;
+  gap: 16px;
+}
+
+.react-activity-cart-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.react-activity-cart-summary article {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #f7fbfd;
+  border: 1px solid #d6e4ef;
+}
+
+.react-activity-cart-summary span {
+  display: block;
+  color: #59758b;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.react-activity-cart-summary strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--react-navy);
+  font-size: 20px;
+}
+
+.react-activity-alert {
+  padding: 16px;
+  border-radius: 18px;
+  background: #fff4ef;
+  border: 1px solid rgba(217, 117, 86, 0.32);
+  color: #8b3e27;
+}
+
+.react-activity-alert strong {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.react-activity-cart-list {
+  display: grid;
+  gap: 12px;
+}
+
+.react-activity-cart-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 18px;
+  background: #f8fcff;
+  border: 1px solid #d6e4ef;
+}
+
+.react-activity-cart-item h4 {
+  margin-bottom: 6px;
+}
+
+.react-activity-cart-item p {
+  margin: 0 0 6px;
+  color: #59758b;
+  font-size: 14px;
+}
+
+.react-activity-cart-item.is-clashed {
+  background: #fff4ef;
+  border-color: rgba(217, 117, 86, 0.4);
+}
+
+.react-clash-note {
+  color: #a34b2c !important;
+  font-weight: 600;
+}
+
+.react-home-booking-section {
+  padding-top: 18px;
+}
+
+.react-floating-band-wrap {
+  margin-top: -68px;
+  position: relative;
+  z-index: 2;
+}
+
+.react-info-card,
+.react-panel,
+.react-room-card,
+.react-kpi-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(14, 74, 114, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 18px 50px rgba(13, 39, 60, 0.1);
+  backdrop-filter: blur(6px);
+}
+
+.react-info-card,
+.react-panel,
+.react-room-card { padding: 20px; }
+
+.react-kpi-card { padding: 14px; }
+.react-kpi-card p { color: #59758b; font-size: 12px; text-transform: uppercase; }
+.react-kpi-card h3 { margin-top: 8px; font-size: 28px; }
+
+.react-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.react-list {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.react-list li {
+  border: 1px solid #d8e6f1;
+  border-radius: 14px;
+  background: #f8fcff;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.react-story-card {
+  padding: 36px;
+  border-radius: 28px;
+  background: linear-gradient(145deg, rgba(12, 43, 64, 0.96), rgba(17, 105, 142, 0.88));
+  color: #fff;
+  box-shadow: 0 24px 60px rgba(13, 39, 60, 0.24);
+}
+
+.react-story-card h2 {
+  margin: 12px 0 14px;
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1;
+}
+
+.react-floating-band {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 16px;
+  border-radius: 26px;
+  background: rgba(255, 250, 244, 0.78);
+  box-shadow: 0 24px 60px rgba(13, 39, 60, 0.14);
+  backdrop-filter: blur(8px);
+}
+
+.react-floating-stat {
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(242,248,250,0.92));
+  text-align: center;
+}
+
+.react-floating-stat strong {
+  display: block;
+  font-size: clamp(28px, 3vw, 40px);
+  color: var(--react-navy);
+}
+
+.react-floating-stat span {
+  display: block;
+  margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 11px;
+  color: #5d7687;
+}
+
+.react-collage {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 16px;
+}
+
+.react-collage img,
+.react-feature-image,
+.react-room-media img,
+.react-activity-card img,
+.react-gallery-card img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.react-collage-main {
+  min-height: 100%;
+  border-radius: 28px;
+  box-shadow: 0 18px 50px rgba(13, 39, 60, 0.18);
+}
+
+.react-collage-small {
+  height: calc(50% - 8px);
+  border-radius: 22px;
+  box-shadow: 0 18px 40px rgba(13, 39, 60, 0.14);
+}
+
+.react-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.react-cta,
+.react-form button,
+.row-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 0;
+  background: linear-gradient(135deg, var(--react-gold), #dfa866);
+  color: #132836;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 10px 24px rgba(201, 139, 67, 0.24);
+}
+
+.react-cta:hover,
+.react-form button:hover,
+.row-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(201, 139, 67, 0.28);
+}
+
+.react-cta-secondary {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  box-shadow: none;
+}
+
+.react-soft-band {
+  position: relative;
+}
+
+.react-experience-panel h3 {
+  margin-bottom: 18px;
+}
+
+.react-experience-list {
+  display: grid;
+  gap: 14px;
+}
+
+.react-experience-item {
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fff, #f7fbfd);
+  border: 1px solid rgba(17, 105, 142, 0.08);
+}
+
+.react-experience-item h4 {
+  margin-bottom: 6px;
+  color: var(--react-navy);
+}
+
+.react-testimonial-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.react-testimonial-card {
+  padding: 24px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(12, 43, 64, 0.94), rgba(31, 92, 113, 0.9));
+  color: #fff;
+  box-shadow: 0 18px 44px rgba(13, 39, 60, 0.18);
+}
+
+.react-testimonial-card p {
+  font-size: 18px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.react-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.react-logo-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--react-gold), #efbb7b);
+  color: #173042;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+}
+
+.react-logo small {
+  display: block;
+  opacity: 0.7;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.react-nav-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--react-gold), #dfab6d);
+  color: #132836;
+  font-weight: 600;
+}
+
+.react-nav-link-button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.react-user-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.react-auth-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.react-login-role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.react-login-role-card {
+  display: grid;
+  gap: 8px;
+  text-align: left;
+  padding: 18px;
+  border: 1px solid #d8e6f1;
+  border-radius: 18px;
+  background: #f8fcff;
+  color: var(--react-ink);
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.react-login-role-card strong {
+  color: var(--react-navy);
+}
+
+.react-login-role-card span {
+  color: #59758b;
+  line-height: 1.6;
+}
+
+.react-login-role-card.active {
+  border-color: rgba(17, 105, 142, 0.42);
+  box-shadow: 0 14px 28px rgba(17, 105, 142, 0.12);
+  transform: translateY(-2px);
+}
+
+.react-login-note {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  color: #59758b;
+}
+
+.react-stat-card {
+  padding: 24px;
+}
+
+.react-stat-kicker {
+  color: var(--react-ocean);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.react-panel-dark {
+  padding: 28px;
+  background: linear-gradient(145deg, #0f3045, #164e64);
+  color: #fff;
+}
+
+.react-feature-image {
+  min-height: 320px;
+  border-radius: 28px;
+  box-shadow: 0 20px 50px rgba(13, 39, 60, 0.16);
+}
+
+.react-room-card {
+  overflow: hidden;
+}
+
+.react-room-media {
+  position: relative;
+  margin: -20px -20px 18px;
+}
+
+.react-room-media img {
+  height: 240px;
+}
+
+.react-room-media span {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(12, 38, 55, 0.82);
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.react-activity-card {
+  overflow: hidden;
+}
+
+.react-activity-card img {
+  height: 220px;
+  margin: -20px -20px 16px;
+  width: calc(100% + 40px);
+}
+
+.react-gallery-card {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 22px;
+  box-shadow: 0 16px 36px rgba(13, 39, 60, 0.14);
+}
+
+.react-gallery-card img {
+  height: 280px;
+  transition: transform 0.35s ease;
+}
+
+.react-gallery-card:hover img {
+  transform: scale(1.04);
+}
+
+.react-metrics {
+  display: grid;
+  gap: 8px;
+}
+
+.react-metrics p {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #edf3f8;
+  padding-bottom: 8px;
+  font-size: 14px;
+}
+
+.react-chart-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.react-chart-grid canvas {
+  width: 100%;
+  border: 1px solid #d6e5f1;
+  border-radius: 12px;
+  background: #fbfdff;
+}
+
+.react-toolbar,
+.react-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.react-toolbar { margin-bottom: 10px; }
+
+.react-role-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.react-role-chip {
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 105, 142, 0.18);
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--react-navy);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.react-role-chip.active {
+  background: linear-gradient(135deg, var(--react-navy), var(--react-ocean));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 12px 24px rgba(13, 47, 69, 0.2);
+}
+
+.react-toolbar input,
+.react-toolbar select,
+.react-form input,
+.react-form textarea,
+.react-form select,
+.react-form-field input,
+.react-form-field select,
+.status-select {
+  border: 1px solid #c9d8e5;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font: inherit;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.react-form textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.react-toolbar input { flex: 1 1 260px; }
+
+.react-form {
+  display: grid;
+  gap: 10px;
+}
+
+.react-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.react-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.react-note {
+  color: #0f5f36;
+  font-size: 14px;
+}
+
+.react-dashboard-copy {
+  margin: 0;
+  color: #59758b;
+  line-height: 1.7;
+}
+
+.react-day-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.react-day-card {
+  padding: 18px;
+  border: 1px solid #d8e6f1;
+  border-radius: 18px;
+  background: #f8fcff;
+}
+
+.react-day-card h4 {
+  margin-bottom: 4px;
+  color: var(--react-navy);
+}
+
+.react-day-card > p {
+  margin: 0 0 14px;
+  color: #59758b;
+  font-size: 14px;
+}
+
+.react-session-block + .react-session-block {
+  margin-top: 14px;
+}
+
+.react-session-block > strong {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--react-ocean);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.react-request-list li {
+  display: grid;
+  gap: 8px;
+}
+
+.react-request-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.react-request-meta span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #eaf5fb;
+  color: var(--react-ocean);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.react-request-note {
+  margin: 0;
+  color: #59758b;
+  line-height: 1.6;
+}
+
+.react-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+  box-shadow: none;
+}
+
+.react-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #d6e4ef;
+  border-radius: 12px;
+}
+
+.react-table {
+  width: 100%;
+  min-width: 840px;
+  border-collapse: collapse;
+}
+
+.react-table th,
+.react-table td {
+  border-bottom: 1px solid #edf3f8;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 13px;
+}
+
+.react-table th { background: #f6fbff; }
+
+.row-btn {
+  padding: 0 14px;
+}
+
+@media (max-width: 1200px) {
+  .react-dashboard-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .react-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .react-activity-layout,
+  .react-auth-layout { grid-template-columns: 1fr; }
+  .react-activity-cart { position: static; }
+}
+
+@media (max-width: 920px) {
+  .react-story-grid,
+  .react-feature-split,
+  .react-card-grid,
+  .react-three-col,
+  .react-two-col { grid-template-columns: 1fr; }
+  .react-review-grid { grid-template-columns: 1fr; }
+  .react-dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .react-floating-band {
+    grid-template-columns: 1fr;
+  }
+  .react-collage {
+    grid-template-columns: 1fr;
+  }
+  .react-collage-small {
+    height: 220px;
+  }
+  .react-home-stage {
+    min-height: 92vh;
+    padding: 96px 0 96px;
+  }
+  .react-home-stage-content h1 {
+    max-width: 11ch;
+  }
+  .react-room-filter-bar,
+  .react-activity-grid { grid-template-columns: 1fr; }
+  .react-login-role-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .react-dashboard-grid { grid-template-columns: 1fr; }
+  .react-gallery-grid { grid-template-columns: 1fr; }
+  .react-room-media img,
+  .react-activity-card img,
+  .react-gallery-card img {
+    height: 220px;
+  }
+}
