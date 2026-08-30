@@ -1,0 +1,14 @@
+{
+  "version": "2.0",
+  "routeKey": "GET /api/bookings",
+  "rawPath": "/api/bookings",
+  "requestContext": {
+    "authorizer": {
+      "jwt": {
+        "claims": {
+          "sub": "replace-with-test-cognito-sub"
+        }
+      }
+    }
+  }
+}

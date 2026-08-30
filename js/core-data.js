@@ -130,20 +130,23 @@
     },
   ];
 
-  const roomCatalog = (() => {
-    const sourceRooms =
-      Array.isArray(globalThis.roomsData) && globalThis.roomsData.length > 0
-        ? globalThis.roomsData
-        : defaultRooms;
-
-    return sourceRooms.reduce((acc, room, index) => {
+  const buildRoomCatalog = (sourceRooms) =>
+    sourceRooms.reduce((acc, room, index) => {
       const fallbackRoom = defaultRooms[index % defaultRooms.length];
+      const roomNameSource =
+        typeof room.roomName === "string" && room.roomName.trim()
+          ? room.roomName
+          : room.name;
       const roomName =
-        typeof room.name === "string" && room.name.trim()
-          ? room.name.trim()
+        typeof roomNameSource === "string" && roomNameSource.trim()
+          ? roomNameSource.trim()
           : fallbackRoom.name;
 
       acc[roomName] = {
+        roomId:
+          typeof room.roomId === "string" && room.roomId.trim()
+            ? room.roomId.trim()
+            : `room-${index + 1}`,
         price: Number(room.price) || fallbackRoom.price,
         capacity: Number(room.capacity) || fallbackRoom.capacity,
         rating: Number(room.rating) || fallbackRoom.rating,
@@ -163,13 +166,24 @@
           Array.isArray(room.amenities) && room.amenities.length > 0
             ? room.amenities
             : fallbackRoom.amenities,
+        tag:
+          typeof room.tag === "string" && room.tag.trim()
+            ? room.tag.trim()
+            : typeof room.category === "string" && room.category.trim()
+              ? room.category.trim()
+              : fallbackRoom.category,
       };
 
       return acc;
     }, {});
-  })();
 
-  const roomNames = Object.keys(roomCatalog);
+  const initialRooms =
+    Array.isArray(globalThis.roomsData) && globalThis.roomsData.length > 0
+      ? globalThis.roomsData
+      : defaultRooms;
+
+  let roomCatalog = buildRoomCatalog(initialRooms);
+  let roomNames = Object.keys(roomCatalog);
 
   const pad = (value) => String(value).padStart(2, "0");
 
@@ -179,6 +193,7 @@
   const fromISODate = (value) => new Date(`${value}T00:00:00`);
 
   const isValidDateIso = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
+  const isValidDateTime = (value) => typeof value === "string" && !Number.isNaN(new Date(value).getTime());
 
   const formatCurrency = (value) => `INR ${Math.round(value || 0).toLocaleString("en-IN")}`;
 
@@ -265,8 +280,61 @@
     return `guest-${bookingId}`;
   };
 
+  const getRooms = () =>
+    roomNames.map((roomName) => ({
+      roomId: roomCatalog[roomName].roomId,
+      roomName,
+      category: roomCatalog[roomName].category,
+      price: roomCatalog[roomName].price,
+      capacity: roomCatalog[roomName].capacity,
+      rating: roomCatalog[roomName].rating,
+      description: roomCatalog[roomName].description,
+      amenities: roomCatalog[roomName].amenities,
+      image: roomCatalog[roomName].image,
+      tag: roomCatalog[roomName].tag,
+    }));
+
+  const setRuntimeRooms = (rooms) => {
+    if (!Array.isArray(rooms) || rooms.length === 0) {
+      return getRooms();
+    }
+
+    roomCatalog = buildRoomCatalog(rooms);
+    roomNames = Object.keys(roomCatalog);
+
+    if (window.DashboardCoreData) {
+      window.DashboardCoreData.roomCatalog = roomCatalog;
+      window.DashboardCoreData.roomNames = roomNames;
+    }
+
+    return getRooms();
+  };
+
+  const findRoomName = (raw) => {
+    if (raw && typeof raw.roomName === "string" && roomNames.includes(raw.roomName)) {
+      return raw.roomName;
+    }
+
+    if (raw && typeof raw.roomId === "string" && raw.roomId.trim()) {
+      const matchedEntry = Object.entries(roomCatalog).find(([, room]) => room.roomId === raw.roomId.trim());
+      if (matchedEntry) return matchedEntry[0];
+    }
+
+    return roomNames[0];
+  };
+
+  const resolveBookingId = (raw, index) => {
+    const directId = raw && (raw.bookingId || raw.id);
+    if (typeof directId === "string" && directId.trim()) return directId.trim();
+
+    const numericId = Number(directId);
+    if (Number.isFinite(numericId) && numericId > 0) return numericId;
+
+    return `${Date.now()}-${index}`;
+  };
+
   const normalizeBooking = (raw, index) => {
-    const roomName = roomNames.includes(raw.roomName) ? raw.roomName : roomNames[0];
+    const roomName = findRoomName(raw);
     const fallbackCheckIn = toISODate(new Date());
     const checkIn = isValidDateIso(raw.checkIn) ? raw.checkIn : fallbackCheckIn;
     const checkOut = isValidDateIso(raw.checkOut)
@@ -276,14 +344,21 @@
     const status = ["active", "completed", "cancelled"].includes(raw.status)
       ? raw.status
       : mapLegacyStatus(raw.status);
-    const createdAt = isValidDateIso(raw.createdAt) ? raw.createdAt : checkIn;
+    const createdAt = isValidDateIso(raw.createdAt) || isValidDateTime(raw.createdAt) ? raw.createdAt : checkIn;
     const generated = calculateAmounts(roomName, checkIn, checkOut, guests);
 
-    const id = Number(raw.id) || Date.now() + index;
+    const id = resolveBookingId(raw, index);
     const guestName = String(raw.guestName || `Guest ${index + 1}`).trim();
 
     return {
       id,
+      bookingId: typeof raw.bookingId === "string" && raw.bookingId.trim() ? raw.bookingId.trim() : String(id),
+      roomId:
+        typeof raw.roomId === "string" && raw.roomId.trim()
+          ? raw.roomId.trim()
+          : roomCatalog[roomName] && roomCatalog[roomName].roomId
+            ? roomCatalog[roomName].roomId
+            : "",
       guestName,
       roomName,
       checkIn,
@@ -301,6 +376,29 @@
       guest: raw.guest && raw.guest.id ? raw.guest : { id: deriveGuestId(guestName, id) },
     };
   };
+
+  const normalizeApiBooking = (raw, index, user) =>
+    normalizeBooking(
+      {
+        bookingId: raw.bookingId,
+        roomId: raw.roomId,
+        roomName: raw.roomName,
+        checkIn: raw.checkIn,
+        checkOut: raw.checkOut,
+        guests: raw.guests,
+        baseAmount: raw.baseAmount,
+        weekendCharge: raw.weekendCharge,
+        extraGuestCharge: raw.extraGuestCharge,
+        gstAmount: raw.gstAmount,
+        totalAmount: raw.totalAmount,
+        createdAt: raw.createdAt,
+        status: raw.status,
+        guestName: user && user.name ? user.name : "Guest",
+        assignedWorker: "",
+        guest: user && user.sub ? { id: user.sub } : undefined,
+      },
+      index
+    );
 
   const normalizeServiceRequest = (raw, index, bookings) => {
     const bookingList = Array.isArray(bookings) ? bookings : [];
@@ -536,6 +634,8 @@
     storage,
     roomCatalog,
     roomNames,
+    getRooms,
+    setRuntimeRooms,
     activityCatalog,
     requestTypes,
     requestPriorities,
@@ -549,6 +649,7 @@
     countWeekendNights,
     calculateAmounts,
     normalizeBooking,
+    normalizeApiBooking,
     normalizeServiceRequest,
     deriveAssignedWorker,
     deriveGuestId,

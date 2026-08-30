@@ -1,0 +1,10 @@
+{
+  "version": "2.0",
+  "routeKey": "GET /api/rooms",
+  "rawPath": "/api/rooms",
+  "requestContext": {
+    "http": {
+      "method": "GET"
+    }
+  }
+}

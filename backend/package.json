@@ -1,0 +1,14 @@
+{
+  "name": "smartresort-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Initial Rooms and Bookings Lambda handlers for SmartResort.",
+  "main": "rooms/get-rooms.js",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/lib-dynamodb": "^3.0.0"
+  }
+}

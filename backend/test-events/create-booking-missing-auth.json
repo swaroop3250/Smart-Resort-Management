@@ -1,0 +1,5 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /api/bookings",
+  "body": "{\"roomId\":\"replace-with-room-id\",\"checkIn\":\"2026-06-12\",\"checkOut\":\"2026-06-15\",\"guests\":2}"
+}

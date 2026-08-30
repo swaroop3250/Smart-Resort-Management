@@ -3,6 +3,9 @@ const coreData = window.DashboardCoreData;
 const siteData = window.ResortSiteData;
 const shared = window.ResortSiteShared;
 const dashboard = window.ResortSiteDashboard;
+const { useEffect } = React;
+const auth = window.SmartResortAuth;
+const api = window.SmartResortApi;
 
 const {
   ROUTES,
@@ -25,28 +28,30 @@ const {
 
 const { Hero, SectionTitle, MetricRow } = shared;
 const { DashboardView } = dashboard;
-const AUTH_STORAGE_KEY = "coastal-crown-active-user";
+const EMPTY_ESTIMATE = Object.freeze({
+  baseAmount: 0,
+  weekendCharge: 0,
+  extraGuestCharge: 0,
+  gstAmount: 0,
+  totalAmount: 0,
+});
 
-function readStoredUser() {
-  const raw = coreData.storage.getItem(AUTH_STORAGE_KEY);
-  if (!raw) return null;
+function resolveRoute(route, user) {
+  let nextRoute = ROUTES.includes(route) ? route : "home";
 
-  try {
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") return null;
-    if (typeof parsed.email !== "string" || typeof parsed.role !== "string") return null;
-    return parsed;
-  } catch (error) {
-    return null;
+  if (["booking", "dashboard"].includes(nextRoute) && !user) {
+    return "login";
   }
-}
 
-function saveStoredUser(user) {
-  coreData.storage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
-}
+  if (nextRoute === "login" && user) {
+    return user.role === "guest" ? "booking" : "dashboard";
+  }
 
-function clearStoredUser() {
-  coreData.storage.removeItem(AUTH_STORAGE_KEY);
+  if (nextRoute === "booking" && user && user.role !== "guest") {
+    nextRoute = "dashboard";
+  }
+
+  return nextRoute;
 }
 
 class ResortApp extends React.Component {
@@ -54,11 +59,19 @@ class ResortApp extends React.Component {
     super(props);
     this.state = {
       route: getInitialRoute(),
+      rooms: [],
+      roomsLoaded: false,
       bookings: [],
       serviceRequests: [],
       user: null,
+      notice: "",
     };
 
+    this.hasUnmounted = false;
+    this.pendingRoute = null;
+
+    this.initializeApp = this.initializeApp.bind(this);
+    this.loadBookingsForUser = this.loadBookingsForUser.bind(this);
     this.handleHashChange = this.handleHashChange.bind(this);
     this.handleNavigate = this.handleNavigate.bind(this);
     this.handleAddBooking = this.handleAddBooking.bind(this);
@@ -72,36 +85,78 @@ class ResortApp extends React.Component {
   }
 
   componentDidMount() {
-    const loadedBookings = coreData.loadBookings();
-    const loadedRequests = coreData.loadServiceRequests(loadedBookings);
-    const storedUser = readStoredUser();
-    const needsLogin = ["booking", "dashboard"].includes(this.state.route) && !storedUser;
-    const safeRoute = needsLogin ? "login" : this.state.route;
-
-    if (!coreData.storage.getItem(coreData.CONFIG.storageKey)) {
-      coreData.saveBookings(loadedBookings);
-    }
-
-    if (!coreData.storage.getItem(coreData.CONFIG.requestStorageKey)) {
-      coreData.saveServiceRequests(loadedRequests);
-    }
-
-    this.setState({
-      bookings: loadedBookings,
-      serviceRequests: loadedRequests,
-      user: storedUser,
-      route: safeRoute,
-    });
-
-    if (safeRoute !== this.state.route) {
-      window.location.hash = safeRoute;
-    }
-
     window.addEventListener("hashchange", this.handleHashChange);
+    this.initializeApp();
   }
 
   componentWillUnmount() {
+    this.hasUnmounted = true;
     window.removeEventListener("hashchange", this.handleHashChange);
+  }
+
+  async initializeApp() {
+    let user = null;
+    let notice = "";
+    let rooms = [];
+    let roomsLoaded = false;
+    let bookings = [];
+
+    try {
+      user = await auth.handleCallback();
+    } catch (error) {
+      auth.logout({ redirect: false });
+      notice = error && error.message ? error.message : "Please sign in to continue.";
+    }
+
+    if (!user) {
+      user = auth.getCurrentUser();
+    }
+
+    try {
+      const roomItems = await api.getRooms();
+      rooms = coreData.setRuntimeRooms(roomItems);
+      roomsLoaded = true;
+    } catch (error) {
+      rooms = [];
+    }
+
+    if (user) {
+      try {
+        bookings = await this.loadBookingsForUser(user);
+      } catch (error) {
+        if (error && (error.status === 401 || error.status === 403)) {
+          auth.logout({ redirect: false });
+          user = null;
+          notice = error.message || "Please sign in to continue.";
+        } else if (!notice) {
+          notice = error && error.message ? error.message : "";
+        }
+      }
+    }
+
+    const serviceRequests = coreData.loadServiceRequests(bookings);
+    const nextRoute = notice && !user ? "login" : resolveRoute(getRouteFromHash() || this.state.route, user);
+
+    if (this.hasUnmounted) return;
+
+    this.setState({
+      route: nextRoute,
+      rooms,
+      roomsLoaded,
+      bookings,
+      serviceRequests,
+      user,
+      notice,
+    });
+
+    if (getRouteFromHash() !== nextRoute) {
+      window.location.hash = nextRoute;
+    }
+  }
+
+  async loadBookingsForUser(user) {
+    const items = await api.getBookings();
+    return items.map((item, index) => coreData.normalizeApiBooking(item, index, user));
   }
 
   handleHashChange() {
@@ -109,17 +164,23 @@ class ResortApp extends React.Component {
     if (!nextRoute) return;
 
     if (["booking", "dashboard"].includes(nextRoute) && !this.state.user) {
-      this.handleNavigate("login");
-      return;
+      this.pendingRoute = nextRoute;
     }
 
-    if (nextRoute === "booking" && this.state.user && this.state.user.role !== "guest") {
-      this.handleNavigate("dashboard");
+    const safeRoute = resolveRoute(nextRoute, this.state.user);
+    if (safeRoute !== nextRoute) {
+      if (!this.state.user) {
+        this.setState({ notice: "Please sign in to continue." });
+      }
+      window.location.hash = safeRoute;
       return;
     }
 
     if (nextRoute !== this.state.route) {
-      this.setState({ route: nextRoute });
+      this.setState({
+        route: nextRoute,
+        notice: nextRoute === "login" ? this.state.notice : "",
+      });
     }
   }
 
@@ -127,53 +188,89 @@ class ResortApp extends React.Component {
     if (!ROUTES.includes(route)) return;
 
     if (["booking", "dashboard"].includes(route) && !this.state.user) {
+      this.pendingRoute = route;
+      this.setState({ notice: "Please sign in to continue." });
       route = "login";
     }
 
-    if (route === "booking" && this.state.user && this.state.user.role !== "guest") {
-      route = "dashboard";
-    }
+    route = resolveRoute(route, this.state.user);
 
     if (getRouteFromHash() !== route) {
       window.location.hash = route;
       return;
     }
 
-    if (this.state.route !== route) {
-      this.setState({ route });
+    if (this.state.route !== route || (route !== "login" && this.state.notice)) {
+      this.setState({
+        route,
+        notice: route === "login" ? this.state.notice : "",
+      });
     }
   }
 
-  handleAddBooking(booking) {
-    const nextBookings = [booking, ...this.state.bookings].map((item, index) => coreData.normalizeBooking(item, index));
-    coreData.saveBookings(nextBookings);
-    this.setState({ bookings: nextBookings, route: "dashboard" });
-    window.location.hash = "dashboard";
+  async handleAddBooking(booking) {
+    try {
+      const createdBooking = await api.createBooking({
+        roomId: booking.roomId,
+        checkIn: booking.checkIn,
+        checkOut: booking.checkOut,
+        guests: booking.guests,
+      });
+      const nextBooking = coreData.normalizeApiBooking(createdBooking, 0, this.state.user);
+      const nextBookings = [nextBooking, ...this.state.bookings.filter((item) => String(item.id) !== String(nextBooking.id))];
+      const nextRequests = coreData.loadServiceRequests(nextBookings);
+
+      this.setState({
+        bookings: nextBookings,
+        serviceRequests: nextRequests,
+        route: "dashboard",
+        notice: "",
+      });
+      window.location.hash = "dashboard";
+      return nextBooking;
+    } catch (error) {
+      if (error && (error.status === 401 || error.status === 403)) {
+        auth.logout({ redirect: false });
+        this.pendingRoute = "booking";
+        this.setState({
+          user: null,
+          bookings: [],
+          serviceRequests: coreData.loadServiceRequests([]),
+          route: "login",
+          notice: error.message || "Please sign in to continue.",
+        });
+        window.location.hash = "login";
+      }
+
+      throw error;
+    }
   }
 
   handleUpdateBookingStatus(id, status) {
     const nextBookings = this.state.bookings.map((booking) => (booking.id === id ? { ...booking, status } : booking));
-    coreData.saveBookings(nextBookings);
     this.setState({ bookings: nextBookings });
   }
 
   handleDeleteBooking(id) {
     const nextBookings = this.state.bookings.filter((booking) => booking.id !== id);
     const nextRequests = this.state.serviceRequests.filter((request) => request.bookingId !== id);
-    coreData.saveBookings(nextBookings);
     coreData.saveServiceRequests(nextRequests);
     this.setState({ bookings: nextBookings, serviceRequests: nextRequests });
   }
 
   handleResetBookings() {
-    const nextBookings = coreData.resetBookings();
+    const nextBookings = [];
     const nextRequests = coreData.resetServiceRequests(nextBookings);
     this.setState({ bookings: nextBookings, serviceRequests: nextRequests });
   }
 
   handleAddDemoBooking() {
     const demoBooking = coreData.generateDemoBookings()[0];
-    this.handleAddBooking(demoBooking);
+    this.setState((current) => ({
+      bookings: [coreData.normalizeBooking(demoBooking, 0), ...current.bookings],
+      route: "dashboard",
+    }));
+    window.location.hash = "dashboard";
   }
 
   handleAddServiceRequest(request) {
@@ -187,28 +284,29 @@ class ResortApp extends React.Component {
     window.location.hash = "dashboard";
   }
 
-  handleLogin(credentials) {
-    const email = String(credentials.email || "").trim().toLowerCase();
-    const role = accessRoles.some((item) => item.key === credentials.role) ? credentials.role : accessRoles[0].key;
-    const accessId = deriveAccessId(email.split("@")[0] || email || role);
-    const user = {
-      email,
-      role,
-      name: formatUserLabel(email),
-      guestId: role === "guest" ? accessId : "",
-      workerId: role === "worker" ? `worker-${(email.length % 4) + 1}` : "",
-    };
+  async handleLogin() {
+    const requestedRoute = this.pendingRoute || this.state.route;
+    this.pendingRoute = null;
+    this.setState({ notice: "" });
 
-    saveStoredUser(user);
-    const nextRoute = role === "guest" ? "booking" : "dashboard";
-    this.setState({ user, route: nextRoute });
-    window.location.hash = nextRoute;
+    try {
+      await auth.login({ returnRoute: requestedRoute });
+    } catch (error) {
+      this.setState({
+        notice: error && error.message ? error.message : "Please sign in to continue.",
+      });
+    }
   }
 
   handleLogout() {
-    clearStoredUser();
-    this.setState({ user: null, route: "login" });
-    window.location.hash = "login";
+    this.pendingRoute = null;
+    this.setState({
+      user: null,
+      bookings: [],
+      serviceRequests: [],
+      notice: "",
+    });
+    auth.logout();
   }
 
   render() {
@@ -217,9 +315,12 @@ class ResortApp extends React.Component {
         <NavBar route={this.state.route} onNavigate={this.handleNavigate} user={this.state.user} onLogout={this.handleLogout} />
         <RouteView
           route={this.state.route}
+          rooms={this.state.rooms}
+          roomsLoaded={this.state.roomsLoaded}
           user={this.state.user}
           bookings={this.state.bookings}
           serviceRequests={this.state.serviceRequests}
+          notice={this.state.notice}
           onLogin={this.handleLogin}
           onAddBooking={this.handleAddBooking}
           onUpdateBookingStatus={this.handleUpdateBookingStatus}
@@ -313,9 +414,12 @@ NavBar.propTypes = {
 
 function RouteView({
   route,
+  rooms,
+  roomsLoaded,
   user,
   bookings,
   serviceRequests,
+  notice,
   onLogin,
   onAddBooking,
   onUpdateBookingStatus,
@@ -330,15 +434,15 @@ function RouteView({
     case "reviews":
       return <ReviewsView />;
     case "rooms":
-      return <RoomsView />;
+      return <RoomsView rooms={rooms} roomsLoaded={roomsLoaded} />;
     case "activities":
       return <ActivitiesView />;
     case "login":
-      return <LoginView onLogin={onLogin} user={user} />;
+      return <LoginView onLogin={onLogin} user={user} notice={notice} />;
     case "booking":
       return user && user.role === "guest"
-        ? <BookingView onAddBooking={onAddBooking} user={user} />
-        : <LoginView onLogin={onLogin} user={user} notice="Sign in as a guest to reserve a room." />;
+        ? <BookingView onAddBooking={onAddBooking} rooms={rooms} roomsLoaded={roomsLoaded} user={user} />
+        : <LoginView onLogin={onLogin} user={user} notice={notice || "Sign in as a guest to reserve a room."} />;
     case "dashboard":
       return user ? (
         <DashboardView
@@ -352,7 +456,7 @@ function RouteView({
           onAddServiceRequest={onAddServiceRequest}
         />
       ) : (
-        <LoginView onLogin={onLogin} user={user} notice="Sign in to open the resort dashboard." />
+        <LoginView onLogin={onLogin} user={user} notice={notice || "Sign in to open the resort dashboard."} />
       );
     default:
       return <HomeView />;
@@ -361,9 +465,12 @@ function RouteView({
 
 RouteView.propTypes = {
   route: PropTypes.string.isRequired,
+  rooms: PropTypes.array.isRequired,
+  roomsLoaded: PropTypes.bool.isRequired,
   user: PropTypes.object,
   bookings: PropTypes.array.isRequired,
   serviceRequests: PropTypes.array.isRequired,
+  notice: PropTypes.string,
   onLogin: PropTypes.func.isRequired,
   onAddBooking: PropTypes.func.isRequired,
   onUpdateBookingStatus: PropTypes.func.isRequired,
@@ -375,6 +482,8 @@ RouteView.propTypes = {
 
 function BookingSection({
   onAddBooking,
+  rooms,
+  roomsLoaded,
   user,
   label = "Reservations",
   title = "Book Your Stay",
@@ -383,29 +492,49 @@ function BookingSection({
 }) {
   const [form, setForm] = useState({
     guestName: user ? user.name : "",
-    roomName: coreData.roomNames[0],
+    roomId: rooms[0] ? rooms[0].roomId : "",
     checkIn: coreData.toISODate(new Date()),
     checkOut: coreData.toISODate(new Date(Date.now() + 24 * 60 * 60 * 1000)),
     guests: 2,
   });
   const [message, setMessage] = useState("");
-  const { guestName, roomName, checkIn, checkOut, guests } = form;
+  const { guestName, roomId, checkIn, checkOut, guests } = form;
+
+  useEffect(() => {
+    setForm((current) => ({
+      ...current,
+      guestName: current.guestName || (user ? user.name : ""),
+      roomId: current.roomId || (rooms[0] ? rooms[0].roomId : ""),
+    }));
+  }, [rooms, user]);
 
   const updateField = (field, parser = (value) => value) => (event) => {
     const nextValue = parser(event.target.value);
+    setMessage("");
     setForm((current) => ({ ...current, [field]: nextValue }));
   };
 
+  const selectedRoom = useMemo(
+    () => rooms.find((room) => room.roomId === roomId) || rooms[0] || null,
+    [rooms, roomId]
+  );
+  const roomName = selectedRoom ? selectedRoom.roomName : "";
+
   const estimate = useMemo(
-    () => coreData.calculateAmounts(roomName, checkIn, checkOut, guests),
+    () => (roomName ? coreData.calculateAmounts(roomName, checkIn, checkOut, guests) : EMPTY_ESTIMATE),
     [roomName, checkIn, checkOut, guests]
   );
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!user || user.role !== "guest") {
       setMessage("Please sign in as a guest before booking a room.");
+      return;
+    }
+
+    if (!roomsLoaded || !selectedRoom || !selectedRoom.roomId) {
+      setMessage("Room availability is still loading. Please try again in a moment.");
       return;
     }
 
@@ -414,31 +543,19 @@ function BookingSection({
       return;
     }
 
-    const bookingId = Date.now();
-    const booking = coreData.normalizeBooking(
-      {
-        id: bookingId,
+    try {
+      await onAddBooking({
+        roomId: selectedRoom.roomId,
+        roomName: selectedRoom.roomName,
         guestName,
-        roomName,
         checkIn,
         checkOut,
         guests: Number(guests),
-        baseAmount: estimate.baseAmount,
-        weekendCharge: estimate.weekendCharge,
-        extraGuestCharge: estimate.extraGuestCharge,
-        gstAmount: estimate.gstAmount,
-        totalAmount: estimate.totalAmount,
-        activities: [],
-        createdAt: coreData.toISODate(new Date()),
-        status: "active",
-        assignedWorker: coreData.deriveAssignedWorker(bookingId),
-        guest: { id: user.guestId || coreData.deriveGuestId(guestName, bookingId) },
-      },
-      0
-    );
-
-    onAddBooking(booking);
-    setMessage("Booking added successfully. Redirecting to Dashboard.");
+      });
+      setMessage("Booking added successfully. Redirecting to Dashboard.");
+    } catch (error) {
+      setMessage(error && error.message ? error.message : "Something went wrong. Please try again.");
+    }
   };
 
   return (
@@ -458,10 +575,10 @@ function BookingSection({
             </label>
             <label>
               Room
-              <select value={roomName} onChange={updateField("roomName")}>
-                {coreData.roomNames.map((roomOption) => (
-                  <option key={roomOption} value={roomOption}>
-                    {roomOption}
+              <select value={selectedRoom ? selectedRoom.roomId : ""} onChange={updateField("roomId")} disabled={rooms.length === 0}>
+                {rooms.map((roomOption) => (
+                  <option key={roomOption.roomId} value={roomOption.roomId}>
+                    {roomOption.roomName}
                   </option>
                 ))}
               </select>
@@ -478,7 +595,7 @@ function BookingSection({
               Guests
               <input type="number" min="1" max="8" value={guests} onChange={updateField("guests", Number)} />
             </label>
-            <button type="submit" className="btn btn-primary">
+            <button type="submit" className="btn btn-primary" disabled={!roomsLoaded || !selectedRoom}>
               Confirm Booking
             </button>
             <p className="react-note">{message}</p>
@@ -501,6 +618,8 @@ function BookingSection({
 
 BookingSection.propTypes = {
   onAddBooking: PropTypes.func.isRequired,
+  rooms: PropTypes.array.isRequired,
+  roomsLoaded: PropTypes.bool.isRequired,
   user: PropTypes.object,
   label: PropTypes.string,
   title: PropTypes.string,
@@ -509,13 +628,15 @@ BookingSection.propTypes = {
 };
 
 function LoginView({ onLogin, user, notice = "" }) {
-  const [role, setRole] = useState(user ? user.role : accessRoles[0].key);
-  const [email, setEmail] = useState(user ? user.email : "");
-  const [password, setPassword] = useState("");
-
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    onLogin({ email, password, role });
+
+    if (user) {
+      window.location.hash = user.role === "guest" ? "booking" : "dashboard";
+      return;
+    }
+
+    await onLogin();
   };
 
   return (
@@ -523,7 +644,7 @@ function LoginView({ onLogin, user, notice = "" }) {
       <Hero
         className="react-hero login"
         title="Resort Access Login"
-        subtitle="Choose the right access type for guest, worker, manager, or owner entry."
+        subtitle="Continue through the resort's secure sign-in and return to your stay experience."
       />
       <section className="section">
         <div className="container react-auth-layout">
@@ -534,8 +655,7 @@ function LoginView({ onLogin, user, notice = "" }) {
                 <button
                   key={item.key}
                   type="button"
-                  className={role === item.key ? "react-login-role-card active" : "react-login-role-card"}
-                  onClick={() => setRole(item.key)}
+                  className={item.key === "guest" ? "react-login-role-card active" : "react-login-role-card"}
                 >
                   <strong>{item.label}</strong>
                   <span>{item.description}</span>
@@ -543,44 +663,16 @@ function LoginView({ onLogin, user, notice = "" }) {
               ))}
             </div>
             <div className="react-login-note">
-              <p>{notice || "Sign in to open the role-based areas of the resort website."}</p>
-              <p>Guests can reserve rooms after login. Workers, managers, and owners go directly to their dashboards.</p>
+              <p>{notice || "Sign in through the secure resort login to continue."}</p>
+              <p>Current connected frontend features continue through the guest stay flow after authentication.</p>
             </div>
           </article>
           <form className="react-panel react-form" onSubmit={handleSubmit}>
             <SectionTitle label="Login" title="Sign In" />
-            <label>
-              Access Role
-              <select value={role} onChange={(event) => setRole(event.target.value)}>
-                {accessRoles.map((item) => (
-                  <option key={item.key} value={item.key}>
-                    {item.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Email
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="guest@coastalcrown.com"
-              />
-            </label>
-            <label>
-              Password
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Enter your password"
-              />
-            </label>
+            <p className="react-note">Use the resort&apos;s secure Cognito sign-in page to authenticate.</p>
+            {user ? <p className="react-note">Signed in as {user.email || user.name}.</p> : null}
             <button type="submit" className="btn btn-primary">
-              Continue
+              {user ? "Continue to My Stay" : "Continue with Secure Login"}
             </button>
           </form>
         </div>
@@ -637,15 +729,15 @@ function ReviewsView() {
   );
 }
 
-function RoomsView() {
+function RoomsView({ rooms, roomsLoaded }) {
   const [priceFilter, setPriceFilter] = useState("all");
   const [ratingFilter, setRatingFilter] = useState("all");
 
   const filteredRooms = useMemo(() => {
     const maxPrice = priceFilter === "all" ? Number.POSITIVE_INFINITY : Number(priceFilter);
     const minRating = ratingFilter === "all" ? 0 : Number(ratingFilter);
-    return RESORT_ROOMS.filter((room) => room.price <= maxPrice && room.rating >= minRating);
-  }, [priceFilter, ratingFilter]);
+    return rooms.filter((room) => room.price <= maxPrice && room.rating >= minRating);
+  }, [priceFilter, ratingFilter, rooms]);
 
   return (
     <main>
@@ -680,24 +772,33 @@ function RoomsView() {
           </div>
           <div className="react-card-grid react-room-grid">
             {filteredRooms.map((room) => (
-              <RoomCard key={room.name} room={room} />
+              <RoomCard key={room.roomId || room.roomName} room={room} />
             ))}
           </div>
-          {filteredRooms.length === 0 ? <p className="react-empty-state">No rooms match that rating and price combination.</p> : null}
+          {filteredRooms.length === 0 ? (
+            <p className="react-empty-state">
+              {roomsLoaded ? "No rooms match that rating and price combination." : "Room catalog is loading."}
+            </p>
+          ) : null}
         </div>
       </section>
     </main>
   );
 }
 
+RoomsView.propTypes = {
+  rooms: PropTypes.array.isRequired,
+  roomsLoaded: PropTypes.bool.isRequired,
+};
+
 function RoomCard({ room }) {
   return (
     <article className="react-room-card">
       <div className="react-room-media">
-        <img src={room.image} alt={room.name} />
+        <img src={room.image} alt={room.roomName} />
         <span>{room.tag}</span>
       </div>
-      <h3>{room.name}</h3>
+      <h3>{room.roomName}</h3>
       <p>{room.description}</p>
       <div className="react-room-meta">
         <strong>{room.rating.toFixed(1)} / 5 rating</strong>
@@ -705,7 +806,7 @@ function RoomCard({ room }) {
       </div>
       <div className="react-chip-list">
         {room.amenities.map((amenity) => (
-          <span className="react-chip" key={`${room.name}-${amenity}`}>
+          <span className="react-chip" key={`${room.roomName}-${amenity}`}>
             {amenity}
           </span>
         ))}
@@ -717,7 +818,8 @@ function RoomCard({ room }) {
 
 RoomCard.propTypes = {
   room: PropTypes.shape({
-    name: PropTypes.string.isRequired,
+    roomId: PropTypes.string,
+    roomName: PropTypes.string.isRequired,
     price: PropTypes.number.isRequired,
     capacity: PropTypes.number.isRequired,
     rating: PropTypes.number.isRequired,
@@ -868,7 +970,7 @@ function ActivitiesView() {
   );
 }
 
-function BookingView({ onAddBooking, user }) {
+function BookingView({ onAddBooking, rooms, roomsLoaded, user }) {
   return (
     <main>
       <Hero
@@ -878,6 +980,8 @@ function BookingView({ onAddBooking, user }) {
       />
       <BookingSection
         onAddBooking={onAddBooking}
+        rooms={rooms}
+        roomsLoaded={roomsLoaded}
         user={user}
         label="Reservations"
         title="Complete Your Booking"
@@ -889,6 +993,8 @@ function BookingView({ onAddBooking, user }) {
 
 BookingView.propTypes = {
   onAddBooking: PropTypes.func.isRequired,
+  rooms: PropTypes.array.isRequired,
+  roomsLoaded: PropTypes.bool.isRequired,
   user: PropTypes.object,
 };
 
