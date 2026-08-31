@@ -10,12 +10,17 @@
   }
 
   function parseResponseBody(response) {
-    const contentType = response.headers.get("content-type") || "";
-    if (!contentType.includes("application/json")) {
-      return response.text().then((text) => ({ text }));
-    }
+    return response.text().then((text) => {
+      if (!text || !text.trim()) {
+        return {};
+      }
 
-    return response.json().catch(() => ({}));
+      try {
+        return JSON.parse(text);
+      } catch (error) {
+        return { text };
+      }
+    });
   }
 
   function getFriendlyMessage(status, payload) {
