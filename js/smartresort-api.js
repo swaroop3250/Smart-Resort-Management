@@ -62,12 +62,29 @@
     };
   }
 
+  function extractRoomItems(payload) {
+    if (Array.isArray(payload)) return payload;
+    if (payload && Array.isArray(payload.items)) return payload.items;
+    if (payload && Array.isArray(payload.Items)) return payload.Items;
+    if (
+      payload &&
+      typeof payload === "object" &&
+      ((typeof payload.roomId === "string" && payload.roomId.trim()) ||
+        (typeof payload.roomName === "string" && payload.roomName.trim()) ||
+        (typeof payload.PK === "string" && payload.PK.trim()))
+    ) {
+      return [payload];
+    }
+
+    return [];
+  }
+
   async function getRooms() {
     const payload = await request("/rooms", {
       method: "GET",
     });
 
-    return Array.isArray(payload.items) ? payload.items : [];
+    return extractRoomItems(payload);
   }
 
   async function getBookings() {

@@ -133,6 +133,12 @@
   const buildRoomCatalog = (sourceRooms) =>
     sourceRooms.reduce((acc, room, index) => {
       const fallbackRoom = defaultRooms[index % defaultRooms.length];
+      const roomIdFromPk =
+        typeof room.PK === "string" && room.PK.startsWith("ROOM#") ? room.PK.slice(5).trim() : "";
+      const roomId =
+        typeof room.roomId === "string" && room.roomId.trim()
+          ? room.roomId.trim()
+          : roomIdFromPk || `room-${index + 1}`;
       const roomNameSource =
         typeof room.roomName === "string" && room.roomName.trim()
           ? room.roomName
@@ -143,10 +149,7 @@
           : fallbackRoom.name;
 
       acc[roomName] = {
-        roomId:
-          typeof room.roomId === "string" && room.roomId.trim()
-            ? room.roomId.trim()
-            : `room-${index + 1}`,
+        roomId,
         price: Number(room.price) || fallbackRoom.price,
         capacity: Number(room.capacity) || fallbackRoom.capacity,
         rating: Number(room.rating) || fallbackRoom.rating,
@@ -295,7 +298,7 @@
     }));
 
   const setRuntimeRooms = (rooms) => {
-    if (!Array.isArray(rooms) || rooms.length === 0) {
+    if (!Array.isArray(rooms)) {
       return getRooms();
     }
 
